@@ -34,9 +34,9 @@ const ChatBox: React.FC = () => {
       left="0"
       width="100%"
       bg="#fff"
-      padding="5px"
+      p={{ base: "5px" }}
     >
-      <Box overflow="scroll" mb="10px" maxHeight="619px">
+      <Box overflow="scroll" mb="10px" maxHeight={{ base: "619px",md:"525px" }} >
         <ScrollToBottom>
           {messages.map((message, index) => (
             <Text
@@ -48,9 +48,9 @@ const ChatBox: React.FC = () => {
               color="#ffffff"
               backgroundColor="#fb406c"
               borderRadius="10px 10px 0px 10px"
-              p="10px"
+              p={{ base: "10px" }}
               key={index}
-              mb="5px"
+              mb={{ base: "5px", md: "10px" }}
             >
               {message}
             </Text>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Text,
@@ -15,9 +15,19 @@ import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 const ChatScreen = () => {
   const [displayProfile, setDisplayProfile] = useState<boolean>(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [userName, setUserName] = useState("");
+
+  useEffect(() => {
+    const storedUserName = localStorage.getItem("userName");
+
+    if (storedUserName) {
+      setUserName(storedUserName);
+    }
+    console.log(userName, "username");
+  }, [userName]);
 
   const handleProfileDisplay = () => {
-    setDisplayProfile(!displayProfile); // Toggle the displayProfile state
+    setDisplayProfile(!displayProfile);
     console.log("display profile");
   };
 
@@ -49,7 +59,7 @@ const ChatScreen = () => {
                 fontWeight={700}
                 mt="7px"
               >
-                Habeebah
+                {userName}
               </Text>
             </Box>
           </Flex>
@@ -128,7 +138,7 @@ const ChatScreen = () => {
           <Box mt="200px">
             <Center>
               <VStack>
-                <Box borderRadius="50px">
+                <Box border="1px solid #818181" borderRadius="10px" p="2">
                   <img src={icon} alt="Profile_Picture" />
                 </Box>
 
@@ -139,7 +149,7 @@ const ChatScreen = () => {
                     fontSize={{ base: "24px", md: "40px" }}
                     fontWeight={700}
                   >
-                    Habeebah's Profile
+                    {userName}'s Profile
                   </Text>
                 </Box>
               </VStack>
