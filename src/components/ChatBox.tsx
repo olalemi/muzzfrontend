@@ -21,7 +21,6 @@ const ChatBox: React.FC = () => {
     }
   };
 
-  // Scroll to the bottom of the chat messages when new messages are added
   useEffect(() => {
     if (messagesRef.current) {
       messagesRef.current.scrollIntoView({ behavior: "smooth" });
@@ -37,7 +36,7 @@ const ChatBox: React.FC = () => {
       bg="#fff"
       padding="5px"
     >
-      <Box overflow="scroll" mb="10px" maxHeight="625px">
+      <Box overflow="scroll" mb="10px" maxHeight="619px">
         <ScrollToBottom>
           {messages.map((message, index) => (
             <Text

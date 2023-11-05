@@ -1,10 +1,20 @@
 import React, { useState } from "react";
-import { Box, Text, Flex, Center, VStack } from "@chakra-ui/react";
+import {
+  Box,
+  Text,
+  Flex,
+  Center,
+  VStack,
+  useDisclosure
+} from "@chakra-ui/react";
 import ChatBox from "../components/ChatBox";
 import icon from "../assets/images/icon.svg";
+import CustomModal from "../components/CustomModal";
+import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 
 const ChatScreen = () => {
   const [displayProfile, setDisplayProfile] = useState<boolean>(false);
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const handleProfileDisplay = () => {
     setDisplayProfile(!displayProfile); // Toggle the displayProfile state
@@ -16,31 +26,52 @@ const ChatScreen = () => {
       <Box>
         <Flex
           direction={{ base: "row" }}
-          justifyContent={{ base: "center" }}
+          justifyContent={{ base: "space-between" }}
           alignContent="center"
           mt="20px"
-          gap="5px"
         >
-          <Box>
-            <img src={icon} alt="Logo" />
-          </Box>
+          <Flex
+            direction={{ base: "row" }}
+            justifyContent={{ base: "center" }}
+            alignContent="center"
+            margin="auto"
+            gap="5px"
+          >
+            <Box>
+              <img src={icon} alt="Profile_Picture" />
+            </Box>
+
+            <Box>
+              <Text
+                color="#000"
+                textAlign="center"
+                fontSize={{ base: "18px", md: "20px" }}
+                fontWeight={700}
+                mt="7px"
+              >
+                Habeebah
+              </Text>
+            </Box>
+          </Flex>
 
           <Box>
-            <Text
-              color="#000"
-              textAlign="center"
-              fontSize={{ base: "24px", md: "40px" }}
-              fontWeight={700}
-            >
-              Habeebah
-            </Text>
+            <MoreHorizIcon
+              style={{
+                cursor: "pointer",
+                color: "#818181",
+                marginTop: "7px ",
+                fontSize: "50px",
+                paddingRight: "10px"
+              }}
+              onClick={onOpen}
+            />
           </Box>
-        </Flex>{" "}
+        </Flex>
+
         <Flex
           direction={{ base: "row" }}
           justifyContent={{ base: "center" }}
           alignContent="center"
-          mt="20px"
           gap="150px"
         >
           <div
@@ -116,6 +147,7 @@ const ChatScreen = () => {
           </Box>
         )}
       </Box>
+      <CustomModal isOpen={isOpen} onClose={onClose} />
     </Box>
   );
 };
