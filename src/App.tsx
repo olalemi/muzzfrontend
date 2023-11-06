@@ -3,6 +3,9 @@ import { ChakraProvider, extendTheme } from "@chakra-ui/react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import ChatScreen from "./screens/ChatScreen";
 import HomeScreen from "./screens/HomeScreen";
+import ChooseARoomScreen from "./screens/ChooseARoomScreen";
+import CreateARoomScreen from "./screens/CreateARoomScreen";
+import UserProvider from "./utility/UserProvider";
 
 const customTheme = extendTheme({
   breakpoints: {
@@ -20,12 +23,16 @@ const customTheme = extendTheme({
 function App() {
   return (
     <ChakraProvider theme={customTheme}>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<HomeScreen />} />
-          <Route path="/chat" element={<ChatScreen />} />
-        </Routes>
-      </BrowserRouter>
+      <UserProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<HomeScreen />} />
+            <Route path="/chat/:roomId" element={<ChatScreen />} />
+            <Route path="/choose-a-room" element={<ChooseARoomScreen />} />
+            <Route path="/create-a-room" element={<CreateARoomScreen />} />
+          </Routes>
+        </BrowserRouter>
+      </UserProvider>
     </ChakraProvider>
   );
 }

@@ -1,16 +1,60 @@
-import React, { useState, useEffect, useRef } from "react";
 import { Box, Input, Stack, Text } from "@chakra-ui/react";
 import { Send as SendIcon } from "@mui/icons-material";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import ScrollToBottom from "react-scroll-to-bottom";
 
-const ChatBox: React.FC = () => {
-  const [messages, setMessages] = useState<string[]>([]);
+import { Socket } from "socket.io-client";
+import { IUserMessage } from "../interfaces/RoomMessages/IRoomMessages";
+import { IUser } from "../interfaces/User/IUser";
+
+type Props = {
+  socket: Socket;
+  currentUser: IUser;
+  roomId: string;
+};
+
+const ChatBox = (props: Props) => {
+  const { currentUser, roomId, socket } = props;
   const [messageInput, setMessageInput] = useState<string>("");
+  const [allMessages, setAllMessages] = useState<IUserMessage[]>([]);
   const messagesRef = useRef<HTMLDivElement | null>(null);
+
+  const appendMessage = useCallback(
+    (message: IUserMessage) => {
+      setAllMessages((prevMessages) => [...prevMessages, message]);
+    },
+    [setAllMessages],
+  );
+
+  useEffect(() => {
+    if (messagesRef.current) {
+      messagesRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [allMessages]);
+
+  useEffect(() => {
+    if (!socket) {
+      return;
+    }
+    socket.on("sendRoomMessageResponse", (data: any) => {
+      if (data) {
+        console.log("Received message data:", data);
+        appendMessage(data.roomMessage);
+      }
+    });
+  }, [socket, appendMessage]);
 
   const handleSendMessage = () => {
     if (messageInput.trim() !== "") {
-      setMessages([...messages, messageInput]);
+      socket.emit("sendRoomMessage", {
+        roomMessage: {
+          userId: currentUser._id,
+          userName: currentUser.userName,
+          message: messageInput,
+        },
+        roomId: roomId,
+      });
+
       setMessageInput("");
     }
   };
@@ -21,12 +65,6 @@ const ChatBox: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    if (messagesRef.current) {
-      messagesRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [messages]);
-
   return (
     <Box
       position="fixed"
@@ -34,25 +72,36 @@ const ChatBox: React.FC = () => {
       left="0"
       width="100%"
       bg="#fff"
-      p={{ base: "5px" }}
+      p={{ base: "10px" }}
     >
-      <Box overflow="scroll" mb="10px" maxHeight={{ base: "619px",md:"525px" }} >
+      <Box
+        overflowY="auto"
+        mb="10px"
+        maxHeight={{ base: "610px", md: "517px" }}
+      >
         <ScrollToBottom>
-          {messages.map((message, index) => (
+          {allMessages.map((am, index) => (
             <Text
               fontSize="20px"
-              maxWidth={`${Math.min(75, 20 + message.length * 2)}%`}
-              justifyContent="right"
-              marginLeft="auto"
+              width={`${Math.min(75, 20 + am.message.length)}%`}
+              justifyContent="center"
+              marginLeft={am.userId === currentUser._id! ? "auto" : "0px"}
               textAlign="left"
-              color="#ffffff"
-              backgroundColor="#fb406c"
-              borderRadius="10px 10px 0px 10px"
+              color={am.userId === currentUser._id! ? "white" : "#818181"}
+              backgroundColor={
+                am.userId === currentUser._id! ? "#fb406c" : "#F4F2F2"
+              }
+              borderRadius={
+                am.userId === currentUser._id!
+                  ? "10px 10px 0px 10px"
+                  : "10px 10px 10px 0px"
+              }
               p={{ base: "10px" }}
               key={index}
-              mb={{ base: "5px", md: "10px" }}
+              mb={{ base: "10px", md: "10px" }}
+              style={{ overflowWrap: "break-word" }}
             >
-              {message}
+              {am.message}
             </Text>
           ))}
           <Box ref={messagesRef}></Box>

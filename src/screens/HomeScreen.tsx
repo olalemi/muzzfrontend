@@ -1,31 +1,40 @@
 import React from "react";
 import { Box, Text, Flex, Input, Button } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
-
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import UserService from "../api/UserService";
+import { IUser } from "../interfaces/User/IUser";
 
 const HomeScreen = () => {
   const navigate = useNavigate();
   const validationSchema = Yup.object().shape({
-    userName: Yup.string().required("userName is required"),
-    roomId: Yup.string().required("roomId is required")
+    userName: Yup.string()
+      .required("Username is required")
+      .matches(
+        /^[A-Za-z]{4,}$/,
+        "Username  must start with a letter and be at least 4 characters long"
+      )
   });
 
   const formik = useFormik({
     initialValues: {
-      userName: "",
-      roomId: ""
+      userName: ""
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
-      if (values.userName !== "") {
-        localStorage.setItem("userName", values.userName);
+      if (values.userName) {
+        const user = await UserService.createUser({
+          userName: values.userName,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        });
 
-        navigate("/chat");
+        if (user) {
+          localStorage.setItem("userId", JSON.stringify(user._id!));
+        }
+        navigate("/create-a-room");
       } else {
-        console.log("wrong inputs");
-        console.log(values);
       }
     }
   });
@@ -85,21 +94,16 @@ const HomeScreen = () => {
                   onBlur={formik.handleBlur}
                 />
               </Box>
-              <Box maxW="400px">
-                <Input
-                  value={formik.values.roomId}
-                  id="roomId"
-                  name="roomId"
-                  type="number"
-                  placeholder="Enter your room number "
-                  borderColor="#818181"
-                  borderRadius="10px"
-                  focusBorderColor="#fb406c"
-                  width="100%"
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                />
-              </Box>
+              {formik.touched.userName && formik.errors.userName && (
+                <Text
+                  color="#FF0000"
+                  fontSize={{ base: "10px", md: "10px" }}
+                  mt="2px"
+                  ml="10px"
+                >
+                  {formik.errors.userName}
+                </Text>
+              )}
 
               <Box maxW="400px">
                 <Button
@@ -114,7 +118,7 @@ const HomeScreen = () => {
                     padding: "0px 50px"
                   }}
                 >
-                  Join
+                  Submit
                 </Button>
               </Box>
             </Flex>

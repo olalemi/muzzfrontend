@@ -1,34 +1,42 @@
-import React, { useState, useEffect } from "react";
 import {
   Box,
-  Text,
-  Flex,
   Center,
+  Flex,
+  Text,
   VStack,
   useDisclosure
 } from "@chakra-ui/react";
-import ChatBox from "../components/ChatBox";
-import icon from "../assets/images/icon.svg";
-import CustomModal from "../components/CustomModal";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
+import {  useContext, useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { io } from "socket.io-client";
+import { getBaseUrlWithoutRoute } from "../api";
+import icon from "../assets/images/icon.svg";
+import ChatBox from "../components/ChatBox";
+import CustomModal from "../components/CustomModal";
+import { UserContext } from "../utility/UserProvider";
 
 const ChatScreen = () => {
   const [displayProfile, setDisplayProfile] = useState<boolean>(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [userName, setUserName] = useState("");
+  const { currentUser } = useContext(UserContext);
+  const { roomId } = useParams();
+
+  const socket = io(getBaseUrlWithoutRoute());
 
   useEffect(() => {
-    const storedUserName = localStorage.getItem("userName");
+    socket.emit("user", {
+      _id: currentUser?._id,
+      userName: currentUser?.userName,
+      roomId: roomId
+    });
+  }, [socket, currentUser?._id, currentUser?.userName, roomId]);
 
-    if (storedUserName) {
-      setUserName(storedUserName);
-    }
-    console.log(userName, "username");
-  }, [userName]);
+  const userName =
+    currentUser?.userName!.length! > 0 ? currentUser?.userName : "";
 
   const handleProfileDisplay = () => {
     setDisplayProfile(!displayProfile);
-    console.log("display profile");
   };
 
   return (
@@ -59,7 +67,8 @@ const ChatScreen = () => {
                 fontWeight={700}
                 mt="7px"
               >
-                {userName}
+                {userName?.charAt(0).toUpperCase()}
+                {userName?.slice(1)}
               </Text>
             </Box>
           </Flex>
@@ -132,7 +141,11 @@ const ChatScreen = () => {
       <Box>
         {!displayProfile ? (
           <Box>
-            <ChatBox />
+            <ChatBox
+              socket={socket}
+              currentUser={currentUser!}
+              roomId={roomId!}
+            />
           </Box>
         ) : (
           <Box mt="200px">
@@ -149,7 +162,8 @@ const ChatScreen = () => {
                     fontSize={{ base: "24px", md: "40px" }}
                     fontWeight={700}
                   >
-                    {userName}'s Profile
+                    {userName?.charAt(0).toUpperCase()}
+                    {userName?.slice(1)}'s Profile
                   </Text>
                 </Box>
               </VStack>
