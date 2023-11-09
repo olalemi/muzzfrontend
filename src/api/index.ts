@@ -2,7 +2,7 @@ export const getBaseUrl = (route: string) => {
   let url;
   switch (process.env.NODE_ENV) {
     case "production":
-      url = ``;
+      url = `https://safe-earth-74461-9e506466c7fa.herokuapp.com/api/${route}/`;
       break;
     case "development":
     default:
@@ -16,7 +16,7 @@ export const getBaseUrlWithoutRoute = () => {
   let url;
   switch (process.env.NODE_ENV) {
     case "production":
-      url = "";
+      url = "https://safe-earth-74461-9e506466c7fa.herokuapp.com/";
       break;
     case "development":
     default:
@@ -24,3 +24,7 @@ export const getBaseUrlWithoutRoute = () => {
   }
   return url;
 };
+
+
+
+
