@@ -4,13 +4,11 @@ import {
   Flex,
   Text,
   VStack,
-  useDisclosure
+  useDisclosure,
 } from "@chakra-ui/react";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
-import {  useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { io } from "socket.io-client";
-import { getBaseUrlWithoutRoute } from "../api";
 import icon from "../assets/images/icon.svg";
 import ChatBox from "../components/ChatBox";
 import CustomModal from "../components/CustomModal";
@@ -19,21 +17,25 @@ import { UserContext } from "../utility/UserProvider";
 const ChatScreen = () => {
   const [displayProfile, setDisplayProfile] = useState<boolean>(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { currentUser } = useContext(UserContext);
+  const { currentUser, socket } = useContext(UserContext);
   const { roomId } = useParams();
 
-  const socket = io(getBaseUrlWithoutRoute());
-
   useEffect(() => {
+    if (!socket) {
+      return;
+    }
+
     socket.emit("user", {
       _id: currentUser?._id,
       userName: currentUser?.userName,
-      roomId: roomId
+      roomId: roomId,
     });
-  }, [socket, currentUser?._id, currentUser?.userName, roomId]);
 
-  const userName =
-    currentUser?.userName!.length! > 0 ? currentUser?.userName : "";
+    return () => {
+      socket.emit("getAllUsers", {});
+      socket?.disconnect();
+    };
+  }, [socket, currentUser?._id, currentUser?.userName, roomId]);
 
   const handleProfileDisplay = () => {
     setDisplayProfile(!displayProfile);
@@ -67,8 +69,7 @@ const ChatScreen = () => {
                 fontWeight={700}
                 mt="7px"
               >
-                {userName?.charAt(0).toUpperCase()}
-                {userName?.slice(1)}
+                {currentUser?.userName}
               </Text>
             </Box>
           </Flex>
@@ -80,7 +81,7 @@ const ChatScreen = () => {
                 color: "#818181",
                 marginTop: "7px ",
                 fontSize: "50px",
-                paddingRight: "10px"
+                paddingRight: "10px",
               }}
               onClick={onOpen}
             />
@@ -162,8 +163,7 @@ const ChatScreen = () => {
                     fontSize={{ base: "24px", md: "40px" }}
                     fontWeight={700}
                   >
-                    {userName?.charAt(0).toUpperCase()}
-                    {userName?.slice(1)}'s Profile
+                    {currentUser?.userName}'s Profile
                   </Text>
                 </Box>
               </VStack>

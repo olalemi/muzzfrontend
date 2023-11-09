@@ -7,8 +7,8 @@ const route: string = "user";
 const apiClient = axios.create({
   baseURL: getBaseUrl(route),
   headers: {
-    "Content-Type": "application/json"
-  }
+    "Content-Type": "application/json",
+  },
 });
 
 const createUser = async (formData: IUser) => {
@@ -16,6 +16,15 @@ const createUser = async (formData: IUser) => {
     const body = JSON.stringify(formData);
     const response = await apiClient.post<IUser>("createuser", body);
     toast.success("User created successfully");
+    return response.data;
+  } catch (err: any) {
+    console.error(err.message);
+  }
+};
+
+const getUsers = async () => {
+  try {
+    const response = await apiClient.get<IUser[]>(`getUsers`);
     return response.data;
   } catch (err: any) {
     console.error(err.message);
@@ -33,7 +42,8 @@ const getCurrentUser = async (id: string) => {
 
 export const UserService = {
   createUser,
-  getCurrentUser
+  getUsers,
+  getCurrentUser,
 };
 
 export default UserService;

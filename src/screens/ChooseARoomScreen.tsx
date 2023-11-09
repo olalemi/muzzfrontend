@@ -1,4 +1,4 @@
-import React from 'react'; 
+import React from "react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import RoomService from "../api/RoomService";
@@ -10,7 +10,7 @@ import {
   Center,
   Text,
   Flex,
-  Button
+  Button,
 } from "@chakra-ui/react";
 import DeleteIcon from "@mui/icons-material/Delete";
 
@@ -42,7 +42,6 @@ const ChooseARoomScreen = () => {
   useEffect(() => {
     async function getAllRooms() {
       const rooms = await RoomService.getRooms();
-
       if (!rooms) {
         return;
       }
@@ -51,10 +50,9 @@ const ChooseARoomScreen = () => {
 
     getAllRooms();
   }, []);
-  console.log(allRooms);
+
   function handleJoinRoom(roomId: string) {
     navigate(`/chat/${roomId}`);
-    console.log(`/chat/${roomId}`);
   }
 
   function handleGoBackToCreateARoom() {
@@ -119,7 +117,7 @@ const ChooseARoomScreen = () => {
                 width: "100%",
                 height: "45px",
                 padding: "0px 50px",
-                marginTop: "50px"
+                marginTop: "50px",
               }}
             >
               Click here to create a new room
@@ -138,7 +136,7 @@ const ChooseARoomScreen = () => {
               <Text
                 color="#000"
                 textAlign="center"
-                fontSize={{ base: "24px", md: "24px" }}
+                fontSize={{ base: "18px", md: "24px" }}
                 fontWeight={600}
                 pt="50px"
               >
@@ -149,7 +147,7 @@ const ChooseARoomScreen = () => {
               <Grid
                 templateColumns={{
                   base: "repeat(2, 1fr)",
-                  md: "repeat(4, 1fr)"
+                  md: "repeat(4, 1fr)",
                 }}
                 gap={{ base: "10px", md: "20px" }}
               >
@@ -162,7 +160,7 @@ const ChooseARoomScreen = () => {
                       backgroundColor: "pink",
                       padding: "10px",
                       color: "#000",
-                      borderRadius: "5px"
+                      borderRadius: "5px",
                     }}
                   >
                     <Flex
@@ -179,7 +177,7 @@ const ChooseARoomScreen = () => {
                         borderRadius="5px"
                         onClick={() => handleJoinRoom(ar._id!)}
                         _hover={{
-                          backgroundColor: "#8C9C8E"
+                          backgroundColor: "#8C9C8E",
                         }}
                       >
                         {ar.name}

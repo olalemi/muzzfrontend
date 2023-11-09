@@ -10,14 +10,15 @@ import UserProvider from "./utility/UserProvider";
 const customTheme = extendTheme({
   breakpoints: {
     base: "320px",
-    sm: "500px",
-    md: "1100px"
+    sm: "700px",
+    md: "1200px",
+    lg: "1500px",
   },
 
   fonts: {
     body: "Plus Jakarta Sans, sans-serif",
-    heading: "Plus Jakarta Sans, sans-serif"
-  }
+    heading: "Plus Jakarta Sans, sans-serif",
+  },
 });
 
 function App() {

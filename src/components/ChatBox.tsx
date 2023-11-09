@@ -2,13 +2,16 @@ import { Box, Input, Stack, Text } from "@chakra-ui/react";
 import { Send as SendIcon } from "@mui/icons-material";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import ScrollToBottom from "react-scroll-to-bottom";
-
 import { Socket } from "socket.io-client";
-import { IUserMessage } from "../interfaces/RoomMessages/IRoomMessages";
+import {
+  IRoomMessage,
+  IUserMessage,
+} from "../interfaces/RoomMessages/IRoomMessages";
 import { IUser } from "../interfaces/User/IUser";
+import RoomMessageService from "../api/RoomMessageService";
 
 type Props = {
-  socket: Socket;
+  socket: Socket | undefined;
   currentUser: IUser;
   roomId: string;
 };
@@ -27,10 +30,22 @@ const ChatBox = (props: Props) => {
   );
 
   useEffect(() => {
-    if (messagesRef.current) {
+    async function fetchRoomMessages() {
+      const roomMessages = await RoomMessageService.getRoomMessages(roomId);
+
+      if (roomMessages && roomMessages.length > 0) {
+        setAllMessages(roomMessages);
+      }
+    }
+    fetchRoomMessages();
+  }, [roomId]);
+
+  useEffect(() => {
+    if (messagesRef.current && socket) {
+      socket.emit("getAllUsers", {});
       messagesRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [allMessages]);
+  }, [allMessages, socket]);
 
   useEffect(() => {
     if (!socket) {
@@ -38,15 +53,25 @@ const ChatBox = (props: Props) => {
     }
     socket.on("sendRoomMessageResponse", (data: any) => {
       if (data) {
-        console.log("Received message data:", data);
         appendMessage(data.roomMessage);
       }
     });
   }, [socket, appendMessage]);
 
-  const handleSendMessage = () => {
+  async function handleSendMessage() {
+    //pseudo code, find out how to find the last element in an array, findLast not working
+    // const userLastMessage = allMessages.find(
+    //   (message: IUserMessage) => message.userId === currentUser._id,
+    // ) as IUserMessage;
+
+    // const fullTime = new Date(
+    //   userLastMessage!.messageTime!,
+    // ).toLocaleTimeString();
+    // console.log(fullTime);
+    // if(userLastMessage?.messageTime <= 20 seconds from DateTime)
+
     if (messageInput.trim() !== "") {
-      socket.emit("sendRoomMessage", {
+      socket?.emit("sendRoomMessage", {
         roomMessage: {
           userId: currentUser._id,
           userName: currentUser.userName,
@@ -55,9 +80,22 @@ const ChatBox = (props: Props) => {
         roomId: roomId,
       });
 
+      const userMessageToBeSent: IUserMessage = {
+        userId: currentUser._id!,
+        userName: currentUser.userName,
+        message: messageInput,
+        messageTime: Date.now(),
+      };
+
+      const roomMessage: IRoomMessage = {
+        roomId: roomId,
+        messages: [userMessageToBeSent],
+      };
+
+      await RoomMessageService.createOrUpdateRoomMessage(roomMessage);
       setMessageInput("");
     }
-  };
+  }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
@@ -75,15 +113,20 @@ const ChatBox = (props: Props) => {
       p={{ base: "10px" }}
     >
       <Box
-        overflowY="auto"
+        overflow="auto"
         mb="10px"
-        maxHeight={{ base: "610px", md: "517px" }}
+        //TODO: change it
+        maxHeight={{ base: "610px", md: "517px", lg: "650px" }}
+        p={{ base: "10px", md: "20px" }}
       >
         <ScrollToBottom>
           {allMessages.map((am, index) => (
             <Text
-              fontSize="20px"
-              width={`${Math.min(75, 20 + am.message.length)}%`}
+              fontSize={{ base: "15px", md: "20px" }}
+              width={{
+                base: `${Math.min(75, 20 + am.message.trim().length)}%`,
+                md: `${Math.min(30, 1 + am.message.trim().length)}%`,
+              }}
               justifyContent="center"
               marginLeft={am.userId === currentUser._id! ? "auto" : "0px"}
               textAlign="left"
@@ -99,9 +142,8 @@ const ChatBox = (props: Props) => {
               p={{ base: "10px" }}
               key={index}
               mb={{ base: "10px", md: "10px" }}
-              style={{ overflowWrap: "break-word" }}
             >
-              {am.message}
+              {am.message.trim()}
             </Text>
           ))}
           <Box ref={messagesRef}></Box>

@@ -1,43 +1,61 @@
-import React from "react";
-import { Box, Text, Flex, Input, Button } from "@chakra-ui/react";
+import React, { useContext, useEffect, useState } from "react";
+import { Box, Text, Flex, Button } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
-import { useFormik } from "formik";
-import * as Yup from "yup";
 import UserService from "../api/UserService";
 import { IUser } from "../interfaces/User/IUser";
+import { UserContext } from "../utility/UserProvider";
 
 const HomeScreen = () => {
   const navigate = useNavigate();
-  const validationSchema = Yup.object().shape({
-    userName: Yup.string()
-      .required("Username is required")
-      .matches(
-        /^[A-Za-z]{4,}$/,
-        "Username  must start with a letter and be at least 4 characters long"
-      )
-  });
+  const [users, setUsers] = useState<IUser[]>([]);
+  const { setCurrentUser, socket } = useContext(UserContext);
+  const [allUsers, setAllUsers] = useState<IUser[]>([]);
 
-  const formik = useFormik({
-    initialValues: {
-      userName: ""
-    },
-    validationSchema: validationSchema,
-    onSubmit: async (values) => {
-      if (values.userName) {
-        const user = await UserService.createUser({
-          userName: values.userName,
-          createdAt: new Date(),
-          updatedAt: new Date()
-        });
+  useEffect(() => {
+    async function fetchAllUsers() {
+      const users = await UserService.getUsers();
 
-        if (user) {
-          localStorage.setItem("userId", JSON.stringify(user._id!));
-        }
-        navigate("/create-a-room");
-      } else {
+      if (users && users.length > 0) {
+        setUsers(users);
       }
     }
-  });
+
+    fetchAllUsers();
+  }, [socket]);
+
+  useEffect(() => {
+    if (!socket) {
+      return;
+    }
+    socket.emit("getAllUsers", {});
+    socket.on("allUsersResponse", (data: any) => {
+      if (data) {
+        setAllUsers(data);
+        console.log("Received users data:", data);
+      }
+    });
+  }, [socket]);
+
+  async function handleLoginAsync(userId: string) {
+    localStorage.setItem("userId", JSON.stringify(userId));
+    const currentUser = await UserService.getCurrentUser(userId);
+
+    if (currentUser) {
+      setCurrentUser(currentUser);
+    }
+
+    navigate("/create-a-room");
+  }
+
+  function disableRoomUser(userId: string) {
+    const findUserInRoom = allUsers.find((user) => user._id === userId);
+
+    if (findUserInRoom) {
+      return true;
+    }
+
+    return false;
+  }
 
   return (
     <Box p="30px">
@@ -66,63 +84,37 @@ const HomeScreen = () => {
               Welcome to Muzz Chat
             </Text>
           </Box>
-          <form
-            onSubmit={formik.handleSubmit}
-            style={{
-              padding: "0px 25px 0px 25px"
-            }}
-          >
-            <Flex
-              direction={{ base: "column" }}
-              justifyContent={{ base: "center" }}
-              alignContent="center"
-              gap="10px"
-              margin=" 0 auto"
-            >
-              <Box maxW="400px">
-                <Input
-                  id="userName"
-                  name="userName"
-                  value={formik.values.userName}
-                  type="text"
-                  borderColor="#818181"
-                  placeholder="Enter your username"
-                  borderRadius="10px"
-                  focusBorderColor="#fb406c"
-                  width="100%"
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                />
-              </Box>
-              {formik.touched.userName && formik.errors.userName && (
-                <Text
-                  color="#FF0000"
-                  fontSize={{ base: "10px", md: "10px" }}
-                  mt="2px"
-                  ml="10px"
-                >
-                  {formik.errors.userName}
-                </Text>
-              )}
 
-              <Box maxW="400px">
+          <Flex
+            direction={{ base: "column" }}
+            justifyContent={{ base: "center" }}
+            alignContent="center"
+            gap="10px"
+            margin=" 0 auto"
+          >
+            <Box mt="20px" maxW="400px">
+              {users.map((user, i) => (
                 <Button
+                  key={i}
+                  isDisabled={disableRoomUser(user._id!)}
+                  onClick={async () => await handleLoginAsync(user._id!)}
                   type="submit"
                   style={{
-                    backgroundColor: !formik.isValid ? "#8C9C8E" : "#01BE6E",
+                    backgroundColor: "#01BE6E",
                     color: "#ffffff",
                     fontSize: "16px",
                     borderRadius: "10px",
                     width: "100%",
                     height: "45px",
-                    padding: "0px 50px"
+                    padding: "0px 50px",
+                    marginTop: "10px",
                   }}
                 >
-                  Submit
+                  Login as {user.userName}
                 </Button>
-              </Box>
-            </Flex>
-          </form>
+              ))}
+            </Box>
+          </Flex>
         </Box>
       </Flex>
     </Box>

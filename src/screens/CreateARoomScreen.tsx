@@ -54,7 +54,7 @@ const CreateARoomScreen = () => {
             Create a new room
           </Text>
         </Box>
-        <Box p={{ base: "20px", md: "20px" }} margin="auto" borderRadius="10px">
+        <Box p={{ md: "20px" }} margin="auto" borderRadius="10px">
           <form
             onSubmit={formik.handleSubmit}
             style={{
