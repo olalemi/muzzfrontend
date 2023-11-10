@@ -2,7 +2,7 @@ export const getBaseUrl = (route: string) => {
   let url;
   switch (process.env.NODE_ENV) {
     case "production":
-      url = `https://safe-earth-74461-9e506466c7fa.herokuapp.com/api/${route}/`;
+      url = `https://muzz-backend-4bb0948a3ed5.herokuapp.com/api/${route}/`;
       break;
     case "development":
     default:
@@ -16,7 +16,7 @@ export const getBaseUrlWithoutRoute = () => {
   let url;
   switch (process.env.NODE_ENV) {
     case "production":
-      url = "https://safe-earth-74461-9e506466c7fa.herokuapp.com/";
+      url = "https://muzz-backend-4bb0948a3ed5.herokuapp.com/";
       break;
     case "development":
     default:

@@ -14,6 +14,7 @@ const HomeScreen = () => {
   useEffect(() => {
     async function fetchAllUsers() {
       const users = await UserService.getUsers();
+console.log(users,"users");
 
       if (users && users.length > 0) {
         setUsers(users);
