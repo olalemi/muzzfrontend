@@ -103,7 +103,7 @@ const ChooseARoomScreen = () => {
               fontSize={{ base: "20px", md: "24px" }}
               fontWeight={700}
             >
-              Sorry the room is empty!
+              Sorry no room available!
             </Text>
           </Box>
           <Box margin="auto" maxW="400px">

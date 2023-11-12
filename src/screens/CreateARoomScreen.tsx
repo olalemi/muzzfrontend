@@ -11,7 +11,7 @@ const CreateARoomScreen = () => {
   const validationSchema = Yup.object().shape({
     roomName: Yup.string()
       .required("room name is required")
-      .matches(/^[A-Za-z][A-Za-z0-9]{4,}$/, 'room name must start with a letter and be at least 4 characters long')
+      .matches(/^[A-Za-z][A-Za-z0-9]{3,}$/, 'room name must start with a letter and be at least 4 characters long')
   });
   
 

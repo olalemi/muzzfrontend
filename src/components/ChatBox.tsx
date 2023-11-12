@@ -32,13 +32,13 @@ const ChatBox = (props: Props) => {
   useEffect(() => {
     async function fetchRoomMessages() {
       const roomMessages = await RoomMessageService.getRoomMessages(roomId);
-
+      console.log(roomMessages, "roomMessages");
       if (roomMessages && roomMessages.length > 0) {
         setAllMessages(roomMessages);
       }
     }
     fetchRoomMessages();
-  }, [roomId]);
+  }, [roomId,]);
 
   useEffect(() => {
     if (messagesRef.current && socket) {
@@ -59,17 +59,6 @@ const ChatBox = (props: Props) => {
   }, [socket, appendMessage]);
 
   async function handleSendMessage() {
-    //pseudo code, find out how to find the last element in an array, findLast not working
-    // const userLastMessage = allMessages.find(
-    //   (message: IUserMessage) => message.userId === currentUser._id,
-    // ) as IUserMessage;
-
-    // const fullTime = new Date(
-    //   userLastMessage!.messageTime!,
-    // ).toLocaleTimeString();
-    // console.log(fullTime);
-    // if(userLastMessage?.messageTime <= 20 seconds from DateTime)
-
     if (messageInput.trim() !== "") {
       socket?.emit("sendRoomMessage", {
         roomMessage: {
@@ -102,6 +91,8 @@ const ChatBox = (props: Props) => {
       handleSendMessage();
     }
   };
+
+  
 
   return (
     <Box
