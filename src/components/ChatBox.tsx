@@ -55,7 +55,10 @@ const ChatBox = (props: Props) => {
         appendMessage(data.roomMessage);
       }
     });
-  }, [socket, appendMessage]);
+  }, [socket, appendMessage,allMessages]);
+
+
+
 
   async function handleSendMessage() {
     if (messageInput.trim() !== "") {
@@ -124,7 +127,6 @@ const ChatBox = (props: Props) => {
       <Box
         overflow="auto"
         mb="10px"
-        //TODO: change it
         maxHeight={{ base: "610px", md: "517px", lg: "650px" }}
         p={{ base: "10px", md: "20px" }}
       >
