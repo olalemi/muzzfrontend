@@ -32,13 +32,12 @@ const ChatBox = (props: Props) => {
   useEffect(() => {
     async function fetchRoomMessages() {
       const roomMessages = await RoomMessageService.getRoomMessages(roomId);
-      console.log(roomMessages, "roomMessages");
       if (roomMessages && roomMessages.length > 0) {
         setAllMessages(roomMessages);
       }
     }
     fetchRoomMessages();
-  }, [roomId,]);
+  }, [roomId]);
 
   useEffect(() => {
     if (messagesRef.current && socket) {
@@ -92,6 +91,25 @@ const ChatBox = (props: Props) => {
     }
   };
 
+  const formatMessageDate = (timestamp: number) => {
+    const date = new Date(timestamp);
+    return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+  };
+
+  const shouldDisplayTimestamp = (index: number) => {
+    if (index === 0) return true;
+    const currentMessage = allMessages[index];
+    const previousMessage = allMessages[index - 1];
+    return currentMessage.messageTime! - previousMessage.messageTime! > 3600000; 
+  };
+
+  const shouldGroupMessages = (currentMessage: IUserMessage, previousMessage?: IUserMessage) => {
+    if (!previousMessage) return false; 
+    return (
+      currentMessage.userId === previousMessage.userId &&
+      currentMessage.messageTime! - previousMessage.messageTime! <= 20000 
+    );
+  };
   
 
   return (
@@ -111,9 +129,21 @@ const ChatBox = (props: Props) => {
         p={{ base: "10px", md: "20px" }}
       >
         <ScrollToBottom>
-          {allMessages.map((am, index) => (
+          {allMessages.map((am, index) =>  { 
+             const previousMessage = index > 0 ? allMessages[index - 1] : undefined;
+             const groupMessages = shouldGroupMessages(am, previousMessage);
+            
+            return (
+            <Box >
+              {shouldDisplayTimestamp(index) && (
+                <Text textAlign="center" color="#A0AEC0" mb={2} key={`timestamp-${index}`}>
+                  {formatMessageDate(am.messageTime!)}
+                </Text>
+              )}
+
             <Text
               fontSize={{ base: "15px", md: "20px" }}
+              mb={groupMessages ? 0.5 : 3}
               width={{
                 base: `${Math.min(75, 20 + am.message.trim().length)}%`,
                 md: `${Math.min(30, 1 + am.message.trim().length)}%`,
@@ -132,11 +162,11 @@ const ChatBox = (props: Props) => {
               }
               p={{ base: "10px" }}
               key={index}
-              mb={{ base: "10px", md: "10px" }}
             >
               {am.message.trim()}
             </Text>
-          ))}
+            </Box>
+          )})}
           <Box ref={messagesRef}></Box>
         </ScrollToBottom>
       </Box>

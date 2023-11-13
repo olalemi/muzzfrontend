@@ -14,7 +14,6 @@ const HomeScreen = () => {
   useEffect(() => {
     async function fetchAllUsers() {
       const users = await UserService.getUsers();
-console.log(users,"users");
 
       if (users && users.length > 0) {
         setUsers(users);
@@ -32,7 +31,6 @@ console.log(users,"users");
     socket.on("allUsersResponse", (data: any) => {
       if (data) {
         setAllUsers(data);
-        console.log("Received users data:", data);
       }
     });
   }, [socket]);
