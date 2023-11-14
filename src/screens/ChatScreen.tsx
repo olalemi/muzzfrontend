@@ -94,7 +94,7 @@ const ChatScreen = () => {
           alignContent="center"
           gap="150px"
         >
-          <div
+          <Box
             onClick={() => setDisplayProfile(false)}
             style={{ position: "relative" }}
           >
@@ -107,9 +107,9 @@ const ChatScreen = () => {
             >
               Chat
             </Text>
-          </div>
+          </Box>
 
-          <div onClick={handleProfileDisplay}>
+          <Box onClick={handleProfileDisplay}>
             <Box>
               <Text
                 color={displayProfile ? "#fb406c" : "#818181"}
@@ -121,7 +121,7 @@ const ChatScreen = () => {
                 Profile
               </Text>
             </Box>
-          </div>
+          </Box>
         </Flex>
         <Flex>
           <Box

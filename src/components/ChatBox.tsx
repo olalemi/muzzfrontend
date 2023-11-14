@@ -131,7 +131,7 @@ const ChatBox = (props: Props) => {
     >
       <Box
         overflow="auto"
-        mb="100px"
+        mb={{ base: "10px", md: "0px" }}
         maxHeight={{ base: "610px", md: "517px", lg: "650px" }}
         p={{ base: "10px", md: "20px" }}
       >
